@@ -1,46 +1,117 @@
-// var MongoClient = require('mongodb').MongoClient
+const express = require('express')
+const bodyParser = require('body-parser');
 
-// //var myobj = { name: "Company Inc", address: "Highway 37" };
-
-// MongoClient.connect('mongodb://localhost:27017/emp_detail', function (err, db) {
-//   if (err) throw err
-
-// //   db.collection('zxy').find().toArray(function (err, result) {
-// // if (err) throw err
-
-// // console.log(result)
-// // })
-// })
+const app = express()
+let logs = Array()
 
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
-var MongoClient = require('mongodb').MongoClient
+app.use((req, res, next) => {
+    
+        // Website you wish to allow to connect
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    
+        // Request methods you wish to allow
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    
+        // Request headers you wish to allow
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    
+        // Set to true if you need the website to include cookies in the requests sent
+        // to the API (e.g. in case you use sessions)
+        res.setHeader('Access-Control-Allow-Credentials', true);
+    
+        // Pass to next layer of middleware
+        next();
+    });
 
-var myobj = { name: "Mandar Kirad1", address: "asdasd" };
 
-MongoClient.connect('mongodb://localhost:27017/emp_detail', function (err, db) {
-  if (err) throw err
-  // db.collection('emp_detail').insertOne(myobj,function (err, result) {
-  //   if (err) throw err
+    app.get(
+        '/',
+        (req, res) => res.send('Hello World!')
+    )
+    
+    app.post(
+        '/login',
+        (req, res) => {
+            //console.log(req.body)
+            let custRes = {}
+            var MongoClient = require('mongodb').MongoClient
+            
+                    
+            MongoClient.connect('mongodb://localhost:27017/emp_detail', function (err, db) {
+              if (err) throw err
+              
+                db.collection('login').find().toArray(function (err, result) {
+                    if (err) throw err
+                    
+                    else{
+                        result.forEach(element => {
+                          //  console.log(req.body.usNm)
+                            if (req.body.usNm === element['username']) {
+                                custRes = {
+                                            sts: 200,
+                                            msg: 'Successful',
+                                            res: req.body.usNm
+                                    }
+                                  //  
+                                  //console.log(custRes);  
+                                  res.json(custRes)
+                                  db.close()        
+                        }
+                        else{
+                            custRes = {
+                                        sts: 400,
+                                        msg: 'error',
+                                        res: 0
+                                    }
+                                    res.json(custRes)
+                                    db.close()         
+                        }
+                       
+                    })
+                      
+                    
+                    }
+                    
+                    
+                }) 
+                   
+               
+               
+            })
 
-  //  // console.log(result)
-  // })
-  var query={address : "asdasd"}
-  // db.collection("emp_detail").findOne({}, function(err, result) {
-  //   if (err) throw err;
-  //   console.log(result.name);
-  //   db.close();
-  // })
-  // db.collection('emp_detail').deleteMany(query ,function (err, result) {
-  //   if (err) throw err
-  //       console.log(result)
-  //    })
+             //let custRes = {}
 
-     db.collection('emp_detail').find().toArray(function (err, result) {
-        if (err) throw err
-        if(result){
-          console.log(result)
+
+            // if (req.body.operation === '+') {
+            //     custRes = {
+            //         sts: 200,
+            //         msg: 'addition',
+            //         res: (parseInt(req.body.num1) + parseInt(req.body.num2))
+            //     }
+            // } else {
+            //     custRes = {
+            //         sts: 400,
+            //         msg: 'error',
+            //         res: 0
+            //     }
+            // }
+    
+           
+            
+            
         }
-       db.close()
-     })
-})
+    )
+
+
+
+    
+    app.listen(
+        3000,
+        () => console.log('Example app listening on port 3000!')
+    )  
